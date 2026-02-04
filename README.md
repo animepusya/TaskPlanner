@@ -16,7 +16,7 @@ TaskPlanner — это офлайн iOS-планировщик задач, ре�
 <img src="Assets/addtask.gif" width="320"/>
 
 ### Edit & Delete Task
-<img src="Assets/edit+delete.gif" width="320"/>
+<img src="Assets/edit_delete.gif" width="320"/>
 
 ### Settings (начало недели с понедельника)
 <img src="Assets/settings.gif" width="320"/>
