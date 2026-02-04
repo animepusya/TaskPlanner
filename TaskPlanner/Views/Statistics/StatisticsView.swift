@@ -4,10 +4,12 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct StatisticsView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @StateObject private var viewModel = StatisticsViewModel()
+    @State private var showSettings = false
 
     var body: some View {
         NavigationView {
@@ -28,6 +30,13 @@ struct StatisticsView: View {
         .onAppear {
             viewModel.configure(context: viewContext)
         }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
+                .environment(\.managedObjectContext, viewContext)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .NSManagedObjectContextDidSave, object: viewContext)) { _ in
+            viewModel.refreshMonth()
+        }
     }
 
     private var header: some View {
@@ -37,7 +46,7 @@ struct StatisticsView: View {
                 .foregroundColor(DS.ColorToken.textPrimary)
             Spacer()
             Button {
-                // TODO: settings/profile
+                showSettings = true
             } label: {
                 Image(systemName: "person.crop.circle")
                     .font(.system(size: 22, weight: .semibold))

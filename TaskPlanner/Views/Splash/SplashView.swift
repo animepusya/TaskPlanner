@@ -22,9 +22,16 @@ struct SplashView: View {
                         .fill(Color.white.opacity(0.35))
                         .frame(width: 120, height: 120)
 
-                    Image(systemName: "calendar.badge.checkmark")
-                        .font(.system(size: 46, weight: .semibold, design: .rounded))
-                        .foregroundColor(DS.ColorToken.purpleDark.opacity(0.9))
+                    Group {
+                        if #available(iOS 17.0, *) {
+                            Image(systemName: "calendar.badge.checkmark")
+                        } else {
+                            Image(systemName: "calendar")
+                        }
+                    }
+                    .font(.system(size: 46, weight: .semibold, design: .rounded))
+                    .foregroundColor(DS.ColorToken.purpleDark.opacity(0.9))
+
                 }
                 .scaleEffect(pulse ? 1.06 : 0.94)
                 .opacity(pulse ? 1.0 : 0.78)

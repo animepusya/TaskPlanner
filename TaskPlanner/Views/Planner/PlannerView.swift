@@ -28,6 +28,7 @@ struct PlannerView: View {
         }
         .onAppear {
             viewModel.configure(context: viewContext)
+            viewModel.reloadWeekStartSetting() // ✅ refresh when returning from Settings tab
         }
         .onReceive(NotificationCenter.default.publisher(for: .NSManagedObjectContextDidSave, object: viewContext)) { _ in
             viewModel.refreshMonth()
@@ -52,6 +53,7 @@ struct PlannerView: View {
 
             Spacer(minLength: 12)
 
+            /*
             Button {
                 // TODO: notifications screen
             } label: {
@@ -65,6 +67,7 @@ struct PlannerView: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Notifications")
+             */
         }
     }
 
@@ -114,7 +117,11 @@ struct PlannerView: View {
     }
 
     private var weekdayHeader: some View {
-        let symbols = Calendar.current.shortWeekdaySymbols // Sun..Sat
+        let base = Calendar.current.shortWeekdaySymbols // Sun..Sat
+        let symbols: [String] = viewModel.weekStartsOnMonday
+            ? Array(base.dropFirst()) + [base.first!]
+            : base
+
         return HStack(spacing: 0) {
             ForEach(symbols, id: \.self) { sym in
                 Text(sym)
@@ -129,10 +136,14 @@ struct PlannerView: View {
         let calendar = Calendar.current
         let monthStart = calendar.startOfMonth(for: viewModel.displayedMonth)
         let days = calendar.range(of: .day, in: .month, for: monthStart)?.count ?? 30
-        let firstWeekday = calendar.component(.weekday, from: monthStart) // 1 = Sunday
-        let leadingEmpty = max(0, firstWeekday - calendar.firstWeekday) // when firstWeekday = 1 and firstWeekdaySymbol starts Sun, leading = 0
-        let totalCells = leadingEmpty + days
 
+        let firstWeekday = calendar.component(.weekday, from: monthStart) // 1=Sun ... 7=Sat
+        let desiredFirstWeekday = viewModel.weekStartsOnMonday ? 2 : 1     // 2=Mon, 1=Sun
+
+        // ✅ Correct offset for either starting day (0...6)
+        let leadingEmpty = (firstWeekday - desiredFirstWeekday + 7) % 7
+
+        let totalCells = leadingEmpty + days
         let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 7)
 
         return LazyVGrid(columns: columns, spacing: 10) {
