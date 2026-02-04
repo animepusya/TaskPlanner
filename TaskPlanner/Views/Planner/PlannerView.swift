@@ -3,6 +3,7 @@
 //  TaskPlanner
 //
 
+import CoreData
 import SwiftUI
 
 struct PlannerView: View {
@@ -27,6 +28,9 @@ struct PlannerView: View {
         }
         .onAppear {
             viewModel.configure(context: viewContext)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .NSManagedObjectContextDidSave, object: viewContext)) { _ in
+            viewModel.refreshMonth()
         }
         .sheet(isPresented: $showCreateTask) {
             TaskEditorView(mode: .create)

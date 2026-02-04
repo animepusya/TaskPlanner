@@ -285,12 +285,19 @@ struct TaskEditorView: View {
         viewModel.syncTimesToSelectedDay()
         guard viewModel.validate() else { return }
 
+        let mode = viewModel.mode
         let title = viewModel.taskName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let notes = viewModel.notes
+        let category = viewModel.category
+        let colorTag = viewModel.colorTag
+        let repeatRule = viewModel.repeatRule
+        let startTime = viewModel.startTime
+        let endTime = viewModel.endTime
         let day = Calendar.current.startOfDay(for: viewModel.dayDate)
 
         viewContext.performAndWait {
             let task: TaskEntity
-            switch viewModel.mode {
+            switch mode {
             case .create:
                 task = TaskEntity(context: viewContext)
                 task.id = UUID()
@@ -300,14 +307,16 @@ struct TaskEditorView: View {
                 task = existing
             }
 
+            let trimmedNotes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
+
             task.title = title
-            task.details = viewModel.notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : viewModel.notes
-            task.category = viewModel.category
-            task.colorTag = viewModel.colorTag
-            task.repeatRule = viewModel.repeatRule
+            task.details = trimmedNotes.isEmpty ? nil : trimmedNotes
+            task.category = category
+            task.colorTag = colorTag
+            task.repeatRule = repeatRule
             task.dayDate = day
-            task.startTime = viewModel.startTime
-            task.endTime = viewModel.endTime
+            task.startTime = startTime
+            task.endTime = endTime
         }
 
         do {

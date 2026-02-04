@@ -6,7 +6,10 @@
 import SwiftUI
 
 struct TaskDetailsView: View {
-    let task: TaskEntity
+    @Environment(\.managedObjectContext) private var viewContext
+    @ObservedObject var task: TaskEntity
+
+    @State private var showEdit = false
 
     var body: some View {
         ScrollView {
@@ -52,6 +55,21 @@ struct TaskDetailsView: View {
         }
         .background(DS.ColorToken.appBackground.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    showEdit = true
+                } label: {
+                    Text("Edit")
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .foregroundColor(DS.ColorToken.purple)
+                }
+            }
+        }
+        .sheet(isPresented: $showEdit) {
+            TaskEditorView(mode: .edit(task))
+                .environment(\.managedObjectContext, viewContext)
+        }
     }
 
     private func infoRow(icon: String, label: String, value: String) -> some View {
