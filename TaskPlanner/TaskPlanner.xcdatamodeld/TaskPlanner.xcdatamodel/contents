@@ -3,7 +3,21 @@
     <entity name="Item" representedClassName="Item" syncable="YES" codeGenerationType="class">
         <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
     </entity>
+    <entity name="TaskEntity" representedClassName="TaskEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="category" optional="NO" attributeType="String"/>
+        <attribute name="colorTag" optional="NO" attributeType="String"/>
+        <attribute name="createdAt" optional="NO" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="dayDate" optional="NO" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="details" optional="YES" attributeType="String"/>
+        <attribute name="endTime" optional="NO" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" optional="NO" attributeType="UUID"/>
+        <attribute name="isDone" optional="NO" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="repeatRule" optional="NO" attributeType="String"/>
+        <attribute name="startTime" optional="NO" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="title" optional="NO" attributeType="String"/>
+    </entity>
     <elements>
         <element name="Item" positionX="-63" positionY="-18" width="128" height="44"/>
+        <element name="TaskEntity" positionX="-63" positionY="54" width="128" height="194"/>
     </elements>
 </model>
