@@ -8,6 +8,7 @@ import SwiftUI
 struct PlannerView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @StateObject private var viewModel = PlannerViewModel()
+    @State private var showCreateTask = false
 
     var body: some View {
         NavigationView {
@@ -26,6 +27,10 @@ struct PlannerView: View {
         }
         .onAppear {
             viewModel.configure(context: viewContext)
+        }
+        .sheet(isPresented: $showCreateTask) {
+            TaskEditorView(mode: .create)
+                .environment(\.managedObjectContext, viewContext)
         }
     }
 
@@ -155,9 +160,25 @@ struct PlannerView: View {
                     .font(DS.Typography.sectionTitle)
                     .foregroundColor(DS.ColorToken.textPrimary)
                 Spacer()
-                Text("\(viewModel.dayTasks.count) tasks")
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    .foregroundColor(DS.ColorToken.purple)
+                HStack(spacing: 10) {
+                    Text("\(viewModel.dayTasks.count) tasks")
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .foregroundColor(DS.ColorToken.purple)
+
+                    Button {
+                        showCreateTask = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(width: 34, height: 34)
+                            .background(DS.GradientToken.brand)
+                            .clipShape(Circle())
+                            .shadow(color: DS.Shadow.soft, radius: 10, x: 0, y: 6)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Create Task")
+                }
             }
 
             if viewModel.dayTasks.isEmpty {
