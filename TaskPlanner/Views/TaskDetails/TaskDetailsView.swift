@@ -3,13 +3,17 @@
 //  TaskPlanner
 //
 
+import CoreData
 import SwiftUI
 
 struct TaskDetailsView: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.dismiss) private var dismiss
+
     @ObservedObject var task: TaskEntity
 
     @State private var showEdit = false
+    @State private var showDeleteAlert = false
 
     var body: some View {
         ScrollView {
@@ -45,9 +49,7 @@ struct TaskDetailsView: View {
                     .dsCard()
                 }
 
-                Text("Task Details actions (Edit/Delete/Done) will be implemented next.")
-                    .font(DS.Typography.caption)
-                    .foregroundColor(DS.ColorToken.textSecondary)
+                actionButtons
             }
             .padding(.horizontal, DS.Spacing.lg)
             .padding(.top, DS.Spacing.lg)
@@ -70,6 +72,52 @@ struct TaskDetailsView: View {
             TaskEditorView(mode: .edit(task))
                 .environment(\.managedObjectContext, viewContext)
         }
+        .alert("Delete Task", isPresented: $showDeleteAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                deleteTask()
+            }
+        } message: {
+            Text("Are you sure you want to delete this task? This action cannot be undone.")
+        }
+    }
+
+    private var actionButtons: some View {
+        HStack(spacing: DS.Spacing.md) {
+            Button {
+                toggleDone()
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: task.wIsDone ? "arrow.uturn.backward.circle" : "checkmark.circle.fill")
+                    Text(task.wIsDone ? "Mark as Undone" : "Mark as Done")
+                }
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(DS.GradientToken.brand)
+                .cornerRadius(DS.Radius.pill)
+            }
+            .buttonStyle(.plain)
+
+            Button {
+                showDeleteAlert = true
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "trash")
+                    Text("Delete")
+                }
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .foregroundColor(.red)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 9)
+                .background(Color.red.opacity(0.08))
+                .cornerRadius(DS.Radius.pill)
+            }
+            .buttonStyle(.plain)
+
+            Spacer(minLength: 0)
+        }
     }
 
     private func infoRow(icon: String, label: String, value: String) -> some View {
@@ -89,6 +137,29 @@ struct TaskDetailsView: View {
                 .foregroundColor(DS.ColorToken.textPrimary)
 
             Spacer(minLength: 0)
+        }
+    }
+
+    private func toggleDone() {
+        viewContext.performAndWait {
+            task.isDone.toggle()
+        }
+        do {
+            try viewContext.save()
+        } catch {
+            assertionFailure("Failed to toggle done: \(error)")
+        }
+    }
+
+    private func deleteTask() {
+        viewContext.performAndWait {
+            viewContext.delete(task)
+        }
+        do {
+            try viewContext.save()
+            dismiss()
+        } catch {
+            assertionFailure("Failed to delete task: \(error)")
         }
     }
 }
